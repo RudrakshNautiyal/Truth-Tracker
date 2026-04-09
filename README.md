@@ -9,8 +9,7 @@ The pipeline starts with a Kaggle‑style fake‑vs‑real news dataset containi
 **2. Text Preprocessing and Feature Preparation**
 Raw text is cleaned by converting to lowercase, removing HTML, extra whitespace, URLs, and special characters. Stopwords are filtered out, and the remaining text is tokenized. Two parallel feature streams are prepared:
 
-Token sequences for the BiLSTM model (using Keras tokenization and padding).
-  i. TF‑IDF vectors for the scikit‑learn classifier.
+  i. Token sequences for the BiLSTM model (using Keras tokenization and padding).TF‑IDF vectors for the scikit‑learn classifier.
   ii. This ensures both deep and classical models can operate on the same high‑quality input.
 
 **3. BiLSTM Model Design and Training**
