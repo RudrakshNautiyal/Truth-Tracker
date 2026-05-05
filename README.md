@@ -157,16 +157,11 @@ schtasks /create /tn "FakeNewsUpdate" /tr "py D:\Live Fake News Detector\update_
 | Streamlit | Web app interface |
 | pickle | Model serialization |
 
----
-
-## 📝 License
-
-This project is for academic purposes as part of a 1-credit ML course project.
 
 ---
 
 ## 👤 Author
 
-**Your Name**
-B.Tech — [Your Branch]
-[Your College Name]
+Rudraksh Nautiyal
+B.Tech — CSE
+Jaypee University of Information Technology
