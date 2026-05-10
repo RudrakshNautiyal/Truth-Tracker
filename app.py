@@ -4,10 +4,10 @@ import re
 import nltk
 import requests
 from datetime import datetime
- 
+
 nltk.download('stopwords', quiet=True)
 from nltk.corpus import stopwords
- 
+
 # ── Page config ────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Truth Tracker",
@@ -15,21 +15,21 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed"
 )
- 
+
 # ── Custom CSS ─────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
- 
+
 /* Base */
 html, body, [class*="css"] {
     font-family: 'DM Sans', sans-serif;
 }
- 
+
 /* Hide default streamlit elements */
 #MainMenu, footer, header { visibility: hidden; }
 .block-container { padding-top: 2rem; padding-bottom: 2rem; }
- 
+
 /* Hero banner */
 .hero {
     background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 50%, #0f0f0f 100%);
@@ -91,7 +91,7 @@ html, body, [class*="css"] {
     font-weight: 400;
 }
 .badge strong { color: #fff; font-weight: 500; }
- 
+
 /* Section headers */
 .section-title {
     font-family: 'Syne', sans-serif;
@@ -102,7 +102,7 @@ html, body, [class*="css"] {
     margin-bottom: 1rem;
     text-transform: uppercase;
 }
- 
+
 /* Result cards */
 .result-real {
     background: linear-gradient(135deg, #1a3a2a, #1e4a34);
@@ -135,7 +135,7 @@ html, body, [class*="css"] {
     margin: 0;
 }
 .result-conf strong { color: #fff; font-size: 1.1rem; }
- 
+
 /* News cards */
 .news-card {
     background: #111118;
@@ -180,7 +180,7 @@ html, body, [class*="css"] {
     font-family: 'Syne', sans-serif;
     white-space: nowrap;
 }
- 
+
 /* Tab styling */
 .stTabs [data-baseweb="tab-list"] {
     gap: 4px;
@@ -200,7 +200,7 @@ html, body, [class*="css"] {
     background: #1a1a1a !important;
     color: #fff !important;
 }
- 
+
 /* Input fields */
 .stTextArea textarea, .stTextInput input {
     background: #0d0d0d !important;
@@ -213,7 +213,7 @@ html, body, [class*="css"] {
     border-color: #e63946 !important;
     box-shadow: 0 0 0 2px #e6394620 !important;
 }
- 
+
 /* Button */
 .stButton button {
     background: #e63946 !important;
@@ -228,16 +228,16 @@ html, body, [class*="css"] {
     transition: opacity 0.2s !important;
 }
 .stButton button:hover { opacity: 0.85 !important; }
- 
+
 /* Progress bars */
 .stProgress > div > div {
     background: #e63946 !important;
     border-radius: 4px !important;
 }
- 
+
 /* Divider */
 hr { border-color: #ffffff0a !important; }
- 
+
 /* Metric */
 [data-testid="stMetric"] {
     background: #111118;
@@ -247,17 +247,17 @@ hr { border-color: #ffffff0a !important; }
 }
 </style>
 """, unsafe_allow_html=True)
- 
+
 # ── Load model & vectorizer ────────────────────────────────────────────────
 @st.cache_resource
 def load_model():
-    model = pickle.load(open("model/model.pkl", "rb"))
-    tfidf = pickle.load(open("model/tfidf.pkl", "rb"))
+    model = pickle.load(open(r"D:\Live Fake News Detector\model\model.pkl", "rb"))
+    tfidf = pickle.load(open(r"D:\Live Fake News Detector\model\tfidf.pkl", "rb"))
     return model, tfidf
- 
+
 model, tfidf = load_model()
 stop_words = set(stopwords.words('english'))
- 
+
 # ── Text cleaning ──────────────────────────────────────────────────────────
 def clean_text(text):
     if not isinstance(text, str):
@@ -269,7 +269,7 @@ def clean_text(text):
     tokens = text.split()
     tokens = [t for t in tokens if t not in stop_words and len(t) > 2]
     return ' '.join(tokens)
- 
+
 # ── Prediction ─────────────────────────────────────────────────────────────
 def predict(text):
     cleaned = clean_text(text)
@@ -277,7 +277,7 @@ def predict(text):
     pred    = model.predict(vec)[0]
     proba   = model.predict_proba(vec)[0]
     return pred, proba
- 
+
 # ── NewsAPI ────────────────────────────────────────────────────────────────
 def fetch_live_news(api_key, query="latest news", count=10):
     try:
@@ -289,7 +289,7 @@ def fetch_live_news(api_key, query="latest news", count=10):
         return data.get("articles", []) if data.get("status") == "ok" else []
     except:
         return []
- 
+
 # ── Hero ───────────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="hero">
@@ -303,10 +303,10 @@ st.markdown("""
     </div>
 </div>
 """, unsafe_allow_html=True)
- 
+
 # ── Tabs ───────────────────────────────────────────────────────────────────
 tab1, tab2 = st.tabs(["  Analyse Article  ", "  Live News Feed  "])
- 
+
 # ── Tab 1 ──────────────────────────────────────────────────────────────────
 with tab1:
     st.markdown('<p class="section-title">Paste headline or article text</p>', unsafe_allow_html=True)
@@ -316,20 +316,20 @@ with tab1:
         height=180,
         placeholder="e.g.  Scientists discover breakthrough cancer treatment..."
     )
- 
+
     col_btn, col_space = st.columns([1, 5])
     with col_btn:
         analyse = st.button("Analyse", type="primary", use_container_width=True)
- 
+
     if analyse:
         if not user_input.strip():
             st.warning("Please enter some text to analyse.")
         else:
             pred, proba = predict(user_input)
             confidence  = round(max(proba) * 100, 2)
- 
+
             st.markdown("<br>", unsafe_allow_html=True)
- 
+
             if pred == 1:
                 st.markdown(f"""
                 <div class="result-real">
@@ -342,21 +342,21 @@ with tab1:
                     <p class="result-label">FAKE NEWS</p>
                     <p class="result-conf">Confidence: <strong>{confidence}%</strong></p>
                 </div>""", unsafe_allow_html=True)
- 
+
             col1, col2 = st.columns(2)
             with col1:
                 st.metric("Real probability",  f"{round(proba[1]*100, 1)}%")
             with col2:
                 st.metric("Fake probability", f"{round(proba[0]*100, 1)}%")
- 
+
             st.markdown("<br>", unsafe_allow_html=True)
             st.progress(float(proba[1]), text=f"Real  {round(proba[1]*100,1)}%")
             st.progress(float(proba[0]), text=f"Fake  {round(proba[0]*100,1)}%")
- 
+
 # ── Tab 2 ──────────────────────────────────────────────────────────────────
 with tab2:
     st.markdown('<p class="section-title">Scan live headlines</p>', unsafe_allow_html=True)
- 
+
     col1, col2 = st.columns([3, 1])
     with col1:
         api_key = st.text_input(
@@ -366,39 +366,39 @@ with tab2:
         )
     with col2:
         query = st.text_input("Topic", value="technology")
- 
+
     if st.button("Fetch & Analyse", type="primary"):
         if not api_key.strip():
             st.warning("Please enter a NewsAPI key.")
         else:
             with st.spinner("Fetching latest headlines..."):
                 articles = fetch_live_news(api_key, query=query, count=10)
- 
+
             if not articles:
                 st.error("No articles found. Check your API key or try a different topic.")
             else:
                 real_count = 0
                 fake_count = 0
- 
+
                 st.markdown("<br>", unsafe_allow_html=True)
- 
+
                 for article in articles:
                     title  = article.get("title", "")  or ""
                     desc   = article.get("description", "") or ""
                     source = article.get("source", {}).get("name", "Unknown")
                     url    = article.get("url", "#")
                     date   = article.get("publishedAt", "")[:10]
- 
+
                     pred, proba = predict(title + " " + desc)
                     confidence  = round(max(proba) * 100, 1)
- 
+
                     if pred == 1:
                         real_count += 1
                         pill = f'<span class="pill-real">REAL · {confidence}%</span>'
                     else:
                         fake_count += 1
                         pill = f'<span class="pill-fake">FAKE · {confidence}%</span>'
- 
+
                     st.markdown(f"""
                     <div class="news-card">
                         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
@@ -408,10 +408,9 @@ with tab2:
                         <p class="news-card-meta">{source} · {date}</p>
                     </div>
                     """, unsafe_allow_html=True)
- 
+
                 st.markdown("<br>", unsafe_allow_html=True)
                 c1, c2, c3 = st.columns(3)
                 c1.metric("Total analysed", len(articles))
                 c2.metric("Classified real", real_count)
                 c3.metric("Classified fake", fake_count)
- 
